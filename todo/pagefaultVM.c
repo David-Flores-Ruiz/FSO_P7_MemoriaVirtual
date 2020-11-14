@@ -117,12 +117,36 @@ int pagefault(char *vaddress)
 
 int getfreeframe()
 {
-	
+    int i;
+    // Busca un marco libre en el sistema
+    for(i=framesbegin;i<framesbegin+12;i++)
+        if(!systemframetable[i].assigned)
+        {
+            systemframetable[i].assigned=1;
+            break;
+        }
+    if(i<systemframetablesize+framesbegin)
+        systemframetable[i].assigned=1;
+    else
+        i=-1;
+    return(i);
 }
 
 int searchvirtualframe()
 {
-	
+    int i;
+    // Busca un marco libre en el sistema
+    for(i=framesbegin+12;i<systemframetablesize+framesbegin;i++)
+        if(!systemframetable[i].assigned)
+        {
+            systemframetable[i].assigned=1;
+            break;
+        }
+    if(i<systemframetablesize+framesbegin)
+        systemframetable[i].assigned=1;
+    else
+        i=-1;
+    return(i);
 }
 
 int getfifo()
