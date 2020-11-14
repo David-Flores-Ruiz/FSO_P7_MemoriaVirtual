@@ -14,7 +14,8 @@
 #define RESIDENTSETSIZE PHISICALMEMORY/(PAGESIZE*NUMPROCS)
 
 extern char *base;
-extern int framesbegin;
+extern int framesbegin;	// Inicio de marcos fisicos = 0
+extern int framesend;	// Inicio de marcos virtuales = 12
 extern int idproc;
 extern int systemframetablesize;
 extern int ptlr;
@@ -118,14 +119,16 @@ int pagefault(char *vaddress)
 int getfreeframe()
 {
     int i;
-    // Busca un marco libre en el sistema
-    for(i=framesbegin;i<framesbegin+12;i++)
+	
+    // Busca un marco libre en los marcos fisicos: 0x00 - 0x0B
+	//												0d  -  11d
+    for(i=framesbegin;i<(framesbegin+systemframetablesize);i++)
         if(!systemframetable[i].assigned)
         {
             systemframetable[i].assigned=1;
             break;
         }
-    if(i<systemframetablesize+framesbegin)
+    if(i<(framesbegin+systemframetablesize))
         systemframetable[i].assigned=1;
     else
         i=-1;
@@ -135,14 +138,16 @@ int getfreeframe()
 int searchvirtualframe()
 {
     int i;
-    // Busca un marco libre en el sistema
-    for(i=framesbegin+12;i<systemframetablesize+framesbegin;i++)
+	
+    // Busca un marco libre en los marcos virtuales: 0x0C - 0x17
+	//												 12d  -  23d
+    for(i=framesend;i<(framesend+systemframetablesize);i++)
         if(!systemframetable[i].assigned)
         {
             systemframetable[i].assigned=1;
             break;
         }
-    if(i<systemframetablesize+framesbegin)
+    if(i<(framesend+systemframetablesize))
         systemframetable[i].assigned=1;
     else
         i=-1;
@@ -151,6 +156,30 @@ int searchvirtualframe()
 
 int getfifo()
 {
+	int i;
+	int page;
+	unsigned long tarrived_temp = -1;
+	unsigned long tarrived_lowest;
 	
+	for(i=0;i<ptlr;i++)
+		if(ptbr[i].presente == 1)	// ¿Cual página expulsar de las que están cargadas en memoria física?
+		{
+			if(tarrived_temp == -1)
+				tarrived_temp = ptbr[i].tarrived;		// Primer tiempo encontrado
+			else 
+			{
+				if(ptbr[i].tarrived < tarrived_temp)	// Si hay un tiempo menor guardalo en temp
+					tarrived_temp = ptbr[i].tarrived;	// temp
+			}
+			
+			tarrived_lowest = tarrived_temp;			// lowest
+		}
+	
+	for(i=0;i<ptlr;i++)
+		if(ptbr[i].presente == 1)
+			if(ptbr[i].tarrived == tarrived_lowest)
+				page = i;			// Sale la página con el menor tarrived, es decir, la primera en llegar
+	
+	return(page);
 }
 
