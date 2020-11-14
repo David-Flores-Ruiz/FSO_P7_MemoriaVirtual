@@ -122,13 +122,13 @@ int getfreeframe()
 	
     // Busca un marco libre en los marcos fisicos: 0x00 - 0x0B
 	//												0d  -  11d
-    for(i=framesbegin;i<(framesbegin+systemframetablesize);i++)
+    for(i=framesbegin;i<framesbegin+systemframetablesize;i++)
         if(!systemframetable[i].assigned)
         {
             systemframetable[i].assigned=1;
             break;
         }
-    if(i<(framesbegin+systemframetablesize))
+    if(i<framesbegin+systemframetablesize)
         systemframetable[i].assigned=1;
     else
         i=-1;
@@ -141,13 +141,13 @@ int searchvirtualframe()
 	
     // Busca un marco libre en los marcos virtuales: 0x0C - 0x17
 	//												 12d  -  23d
-    for(i=framesend;i<(framesend+systemframetablesize);i++)
+    for(i=framesbegin+systemframetablesize;i<framesbegin+systemframetablesize*2;i++)
         if(!systemframetable[i].assigned)
         {
             systemframetable[i].assigned=1;
             break;
         }
-    if(i<(framesend+systemframetablesize))
+    if(i<framesbegin+systemframetablesize*2)
         systemframetable[i].assigned=1;
     else
         i=-1;
@@ -171,9 +171,8 @@ int getfifo()
 				if(ptbr[i].tarrived < tarrived_temp)	// Si hay un tiempo menor guardalo en temp
 					tarrived_temp = ptbr[i].tarrived;	// temp
 			}
-			
-			tarrived_lowest = tarrived_temp;			// lowest
 		}
+	tarrived_lowest = tarrived_temp;					// lowest
 	
 	for(i=0;i<ptlr;i++)
 		if(ptbr[i].presente == 1)
