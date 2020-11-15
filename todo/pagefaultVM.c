@@ -65,12 +65,11 @@ int pagefault(char *vaddress)
 		
 		// Poner el bit de presente en 0 en la tabla de páginas
         (ptbr+pag_a_expulsar)->presente = 0;
-		
+	frame = (ptbr+pag_a_expulsar)->framenumber;	// frame aqui siempre debe ser un marco fisico
         // Si la página ya fue modificada, grábala en disco
 		if((ptbr+pag_a_expulsar)->modificado == 1)
         {
-			frame = (ptbr+pag_a_expulsar)->framenumber;	// frame aqui siempre debe ser un marco fisico
-			
+			//frame = (ptbr+pag_a_expulsar)->framenumber;	// Con la asignación aquí da error
 			// Escribe el frame de la página en el archivo de respaldo y pon en 0 el bit de modificado
 			saveframe(frame);
 			(ptbr+pag_a_expulsar)->modificado = 0;
@@ -101,7 +100,7 @@ int pagefault(char *vaddress)
     }
 	
     // Si la página estaba en memoria secundaria
-	if((ptbr+pag_del_proceso)->framenumber != -1)
+	if(((ptbr+pag_del_proceso)->framenumber != -1) && ((ptbr+pag_del_proceso)->framenumber > 11))
     {
         // Cópialo al frame libre encontrado en memoria principal y transfiérelo a la memoria física
 		writeblock(buffer, frame);
