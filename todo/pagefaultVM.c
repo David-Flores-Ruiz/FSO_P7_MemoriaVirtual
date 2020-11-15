@@ -65,11 +65,13 @@ int pagefault(char *vaddress)
 		
 		// Poner el bit de presente en 0 en la tabla de páginas
         (ptbr+pag_a_expulsar)->presente = 0;
-	frame = (ptbr+pag_a_expulsar)->framenumber;	// frame aqui siempre debe ser un marco fisico
-        // Si la página ya fue modificada, grábala en disco
+		frame = (ptbr+pag_a_expulsar)->framenumber;	// frame aqui siempre debe ser un marco fisico
+        
+		// Si la página ya fue modificada, grábala en disco
 		if((ptbr+pag_a_expulsar)->modificado == 1)
         {
-			//frame = (ptbr+pag_a_expulsar)->framenumber;	// Con la asignación aquí da error
+			// frame = (ptbr+pag_a_expulsar)->framenumber;	// Con la asignación aquí da ERROR
+			
 			// Escribe el frame de la página en el archivo de respaldo y pon en 0 el bit de modificado
 			saveframe(frame);
 			(ptbr+pag_a_expulsar)->modificado = 0;
@@ -180,4 +182,3 @@ int getfifo()
 	
 	return(page);
 }
-
